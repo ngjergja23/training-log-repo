@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
 import org.unizd.rma.traininglog.presentation.list.TreningListScreen
+import org.unizd.rma.traininglog.presentation.navigation.TrainingLogNavigation
 import org.unizd.rma.traininglog.ui.theme.TrainingLogTheme
 
 @AndroidEntryPoint
@@ -23,11 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TrainingLogTheme {
                 Surface {
-                    //kasnije navigacija
-                    TreningListScreen(
-                        onTreningClick = { id -> /* kasnije navigacija na detalj/edit */ },
-                        onAddClick = { /* kasnije navigacija na formu */ }
-                    )
+                    TrainingLogNavigation()
                 }
             }
         }
