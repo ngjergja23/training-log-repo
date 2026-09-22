@@ -22,7 +22,7 @@ object AppModule {
     fun provideTreningDatabase(
         @ApplicationContext context: Context
     ): TreningDatabase {
-        return Room.databaseBuilder(
+        return Room.databaseBuilder(  //
             context,
             TreningDatabase::class.java,
             TreningDatabase.DATABASE_NAME

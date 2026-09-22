@@ -3,8 +3,10 @@ package org.unizd.rma.traininglog.presentation.create
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -28,9 +30,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -42,6 +47,8 @@ private val misicneSkupine = listOf("Noge", "Leđa", "Prsa", "Ruke", "Core", "Ka
 fun AddTreningScreen(
     viewModel: AddTreningViewModel = hiltViewModel(),
     treningId: Int? = null,
+    capturedPhotoUri: String? = null,
+    onPhotoClick: () -> Unit,
     onBackClick: () -> Unit,
     onSaveSuccess: () -> Unit
 ) {
@@ -50,13 +57,18 @@ fun AddTreningScreen(
     val biljeska by viewModel.biljeska.collectAsStateWithLifecycle()
     val misicnaSkupina by viewModel.misicnaSkupina.collectAsStateWithLifecycle()
     val datumTreninga by viewModel.datumTreninga.collectAsStateWithLifecycle()
+    val slikaUri by viewModel.slikaUri.collectAsStateWithLifecycle()
 
     LaunchedEffect(treningId) {
         if (treningId != null) {
             viewModel.loadTreningForEdit(treningId)
         }
     }
-
+    LaunchedEffect(capturedPhotoUri) {
+        if (capturedPhotoUri != null) {
+            viewModel.setSlikaUri(capturedPhotoUri)
+        }
+    }
     LaunchedEffect(state) {
         if (state is AddTreningState.Success) {
             onSaveSuccess()
@@ -92,6 +104,29 @@ fun AddTreningScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
             }
+
+            if (slikaUri != null) {
+                AsyncImage(
+                    model = slikaUri,
+                    contentDescription = "Slika treninga",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .padding(bottom = 16.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Button(
+                onClick = onPhotoClick,
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(if (slikaUri != null) "Ponovno slikaj" else "Fotografiraj")
+            }
+
             TextField(
                 value = nazivVjezbe,
                 onValueChange = { viewModel.setNazivVjezbe(it) },

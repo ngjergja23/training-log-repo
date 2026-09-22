@@ -47,6 +47,8 @@ class AddTreningViewModel @Inject constructor(
     fun setSlikaUri(value: String?) { _slikaUri.value = value }
 
     fun loadTreningForEdit(id: Int) {
+        if (editingId == id) return
+
         viewModelScope.launch {
             _state.value = AddTreningState.Loading
             val result = getSingleTreningUseCase(id)
