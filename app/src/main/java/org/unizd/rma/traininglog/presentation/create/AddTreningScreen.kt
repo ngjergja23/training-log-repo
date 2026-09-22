@@ -10,8 +10,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -20,9 +23,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -206,16 +212,58 @@ fun MisicnaSkupinaDropdown(selected: String, onSelect: (String) -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatumPicker(selectedDate: Date, onDateSelected: (Date) -> Unit) {
+fun DatumPicker(selectedDate: Date, onDateSelected: (Date) -> Unit){
+    var showDialog by remember { mutableStateOf(false) }
     val formatter = remember { SimpleDateFormat("dd.MM.yyyy.", Locale("hr")) }
+
     TextField(
         value = formatter.format(selectedDate),
         onValueChange = {},
         readOnly = true,
         label = { Text("Datum treninga") },
+        trailingIcon = {
+            IconButton(onClick = { showDialog = true }) {
+                Icon(Icons.Filled.DateRange, contentDescription = "Odaberi datum")
+            }
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp)
+
     )
+
+    if (showDialog) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = selectedDate.time,
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                    return utcTimeMillis <= System.currentTimeMillis()
+                }
+            }
+        )
+
+        DatePickerDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        onDateSelected(Date(millis))
+                    }
+                    showDialog = false
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Odustani")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+
+    }
 }
